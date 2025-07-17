@@ -50,10 +50,39 @@ func postTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	var newTask Task
+	err := json.NewDecoder(r.Body).Decode(&newTask)
+	if err != nil {
+		http.Error(w, "Invalid Json", http.StatusBadRequest)
+		return
+	}
+
+	if newTask.Title == "" {
+		http.Error(w, "Mising task Title", http.StatusBadRequest)
+		return
+	}
+
+	newTask.ID = len(tasks) + 1
+	newTask.CreatedAt = time.Now()
+	newTask.Completed = false
+
+	tasks = append(tasks, newTask)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newTask)
 }
 func main() {
 
-	http.HandleFunc("/tasks", getTaskHandler)
+	http.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			getTaskHandler(w, r)
+		case http.MethodPost:
+			postTaskHandler(w, r)
+		default:
+			http.Error(w, "Method not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
 	fmt.Println("Server running on http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
