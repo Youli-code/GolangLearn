@@ -253,7 +253,6 @@ func TestDeleteTaskHandler_DeletesTask(t *testing.T) {
 	}
 }
 
-// DELETE /tasks/{id} - not found
 func TestDeleteTaskHandler_NotFound(t *testing.T) {
 	mockStore := &MockStore{
 		DeleteTaskFunc: func(id int) error {

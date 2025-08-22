@@ -10,16 +10,18 @@ import (
 )
 
 func main() {
-
 	db := initDB()
 	store := NewSQLiteStore(db)
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("GET /tasks", getTaskHandler(store))
-	mux.HandleFunc("POST /tasks", postTaskHandler(store))
 	mux.HandleFunc("GET /tasks/{ID}", getTaskByIDHandler(store))
-	mux.HandleFunc("PUT /tasks/{ID}", updateTaskByIDHandler(store))
-	mux.HandleFunc("DELETE /tasks/{ID}", deleteTaskByIDHandler(store))
+	mux.HandleFunc("POST /login", loginHandler)
+
+	mux.Handle("POST /tasks", AuthMiddleware(postTaskHandler(store)))
+	mux.Handle("PUT /tasks/{ID}", AuthMiddleware(updateTaskByIDHandler(store)))
+	mux.Handle("DELETE /tasks/{ID}", AuthMiddleware(deleteTaskByIDHandler(store)))
 
 	handler := Chain(mux,
 		Recover,

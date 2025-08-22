@@ -108,6 +108,21 @@ func deleteTaskByIDHandler(store TaskStore) http.HandlerFunc {
 	}
 }
 
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+
+	userID := 123
+
+	token, err := GenerateJWT(userID)
+	if err != nil {
+		writeErr(w, http.StatusInternalServerError, "could not generate token")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{
+		"token": token,
+	})
+}
+
 func updateTaskByIDHandler(store TaskStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := r.PathValue("ID")
